@@ -2,21 +2,82 @@ body{
     background:crimson;
 }
 .card{
-    min-width:8em;
-    max-width:35em;
-    padding: 30px;
-    border:1px solid black;
-    border-radius:-5%;
+    /* min-width:15em;
+    max-width: 15em; */
     opacity:0.8;
-    background:gainsboro;
     transition:all 0.3s ease-out;
     cursor: pointer;
     margin:5px;
-    display:inline-flex;
-    box-shadow:4px 4px 2px rgba(0,0,0,0.5);
     display:flex;
     flex-direction: column;
     flex-wrap:wrap;
+    /* transition: all 0.5s ease-in; */
+    position: relative;
+    flex-grow:0;
+    flex-shrink:0;
+    height:12em;
+    width:15em;
+    overflow: visible;
+}
+.card-container{
+    border:1px solid black;
+    box-shadow:4px 4px 2px rgba(0,0,0,0.5);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    border-radius:2px;
+    /*height:12em;
+    width:15em;*/
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    position:absolute;
+    height:100%;
+    width:100%;
+    transition:left 0.5s ease-in, right 0.5s ease-in, top 0.5s ease-in, bottom 0.5s ease-in, height 0.5s ease-in, width 0.5s ease-in;
+    overflow: hidden;
+    display:inline-flex;
+    flex-direction:column;
+}
+.card:hover .card-container{
+    /*width:25em;
+    z-index:999;
+    height:18em;*/
+    z-index:2;
+    /*top:-1.5em;
+    bottom:-1.5em;
+    left:-3em;
+    right:-3em;*/
+    left:-20%;
+    top:-20%;
+    height:140%;
+    width:140%;
+}
+.card-mini-modal{
+    align-self:flex-end;
+    background:#333;
+    position: absolute;
+    z-index:4;
+    height:0%;
+    width:100%;
+    bottom:0;
+    transition:all 0.5s ease-in;
+}
+.card:hover .card-mini-modal{
+    height:40%;
+}
+.card-title{
+    text-align:center;
+    transition:all 0.5s ease-in;
+    overflow: hidden;
+    max-height: 0;
+    color:white;
+    -webkit-text-stroke:black 0.4px;
+    text-shadow:2px 2px 3px black;
+}
+.card:hover .card-title{
+    transform: scaleY(1);
+    max-height: 50px;
 }
 .card.single-view{
     cursor: default;
@@ -28,18 +89,19 @@ body{
     width: 100%;
 }
 .container{
-    margin-top:20px;
+    margin-top:40px;
     padding:20px 40px;
     display:flex;
     flex-wrap:wrap;
     justify-content: center;
+    position: relative;
 }
 .card p{
     width:fit-content;
 }
 form{
     display:flex;
-    position:fixed;
+    position:sticky;
     width:98vw;
     z-index:2;
 }
@@ -62,7 +124,29 @@ button, input[type=submit]{
     border:1px solid yellow;
     transition: all 0.3s;
     outline:none;
+    padding:1em 0.5em;
 }
 button:hover, input[type=submit]:hover{
     background:orange;
 }
+.row{
+    display:flex;
+}
+.slider-row{
+    overflow:auto;
+    height:400px;
+}
+.slider-row::-webkit-scrollbar, .slider-row::-webkit-scrollbar-track, .slider-row::-webkit-scrollbar-thumb{
+    display:none;
+}
+/* .cards::-webkit-scrollbar{
+    width: 5px;
+    height: 5px;
+}
+.cards::-webkit-scrollbar-track{
+    background:grey;
+    border-radius:25%;
+}
+ .cards::-webkit-scrollbar-thumb {
+    background:darkgrey;
+} */
