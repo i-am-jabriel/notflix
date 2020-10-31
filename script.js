@@ -156,7 +156,10 @@ fetch(`${api}/genre/movie/list?api_key=${apiKey}`).then(res=>res.json())
         fetch(`${api}/genre/tv/list?api_key=${apiKey}`).then(r=>r.json()).then(r2=>{
             genres.push(...r2.genres);
             tvGenres = r2.genres;
-            navigateToPage();
+            var page = window.location.hash ? 
+                '/notflix/' + window.location.hash.substring(1,window.location.hash.length) : undefined;
+            console.log(page);
+            navigateToPage(page);
         });
     });
 
