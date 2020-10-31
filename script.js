@@ -75,17 +75,20 @@ function createCardForMovies(arr, title='Trending'){
 
         obj.card = card;
         card.className = 'card';
-        inner.style['background-image']=`url(${apiImage}/${obj.backdrop_path || obj.poster_path})`;
+        var img = obj.backdrop_path || obj.poster_path;
+        if(img)inner.style['background-image']=`url(${apiImage}/${img})`;
 
         var title = document.createElement('h3');
         title.className = 'card-title';
         title.innerText = obj.title || obj.original_name;
 
         //create img in card
+        /*
         var img = document.createElement('img');
         img.src = `${apiImage}/${obj.poster_path}`;
         imagesLoadedCount++;
         img.onload = onImageLoad;
+        */
 
         var mini = document.createElement('div');
         mini.className = 'card-mini-modal';
@@ -221,16 +224,16 @@ function loadTrendingTV(){
      .then(res=>createCardForMovies(res.results))
  }
 function loadPopularMovies(sort = 'popularity.desc', title = 'Popular in US', params = ''){
-    console.log(`${api}/discover/movie?api_key=${apiKey}&sort_by=${sort}&include_adult=false${params}`)
+    // console.log(`${api}/discover/movie?api_key=${apiKey}&sort_by=${sort}&include_adult=false${params}`)
     fetch(`${api}/discover/movie?api_key=${apiKey}&sort_by=${sort}&include_adult=false${params}`)
         .then(res=>res.json())
         .then(res=>{
-            console.log(res);
+            // console.log(res);
             createCardForMovies(res.results, title);
         });
 }
 function loadPopularTV(sort = 'popularity.desc', title = 'Trending TV', params = ''){
-    console.log(`${api}/discover/tv?api_key=${apiKey}&sort_by=${sort}&include_adult=false${params}`)
+    // console.log(`${api}/discover/tv?api_key=${apiKey}&sort_by=${sort}&include_adult=false${params}`)
     fetch(`${api}/discover/tv?api_key=${apiKey}&sort_by=${sort}&include_adult=false${params}`)
         .then(res=>res.json())
         .then(res=>{
@@ -255,7 +258,7 @@ window.addEventListener('popstate',e=>{
 
 function populatePage(){
     clearContainer();
-    console.log(state.page);
+    // console.log(state.page);
     if(state.page == '/notflix/')
         displayHomePage();
     else if(state.page.indexOf('/tv/') != -1)
