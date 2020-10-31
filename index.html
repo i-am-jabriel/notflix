@@ -4,11 +4,27 @@
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap" rel="stylesheet">
     </head>
     <body>
-        <form onsubmit='return false'>
+        <!-- <form onsubmit='return false'>
             <button id='back'>←Back</button>
             <input id='query' placeholder="Search..."/>
             <input type='submit' id='submit' />
-        </form>
+        </form> -->
+        <div class = 'navbar scrolling'>
+            <div class='nav-left'>
+                <a id='logo' url='/' aria-label="NoTFLIX">N<r>o</r>TFLIX</a>
+                <a id='home' url='/'>Home</a>
+                <a id='tv' url='/tv/'>TV Shows</a>
+                <a id='movies' url='/movies/'>Movies</a>
+                <a id='list' url='/list/'>My List</a>
+            </div>
+            <div class='nav-right'>
+                <form onsubmit='return false'>
+                    <input id='search' placeholder="Search..."/>
+                </form>
+                <ab id='search'><i class='fas fa-search'></i></ab>
+                <ab id='credits'><i class="fas fa-ellipsis-h"></i></ab>
+            </div>
+        </div>
         <script src='script.js'></script>
         <script src="https://kit.fontawesome.com/dc59b22366.js" crossorigin="anonymous"></script>
     </body>

@@ -1,0 +1,10 @@
+<script>
+    var url= window.location.href.split('/').filter(x=>x);
+    url.shift();
+    var page = url.slice(1).join('/');
+    var root = url[1];
+    if(page == '404.html')page = '/';
+    if(root == '404.html')root = '/';
+    console.log(url);
+    history.pushState({page,root},'','/');
+</script>

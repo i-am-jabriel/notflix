@@ -3,9 +3,54 @@ body{
     color:white;
     font-family: 'Poppins', sans-serif;
 }
+a, ab{cursor: pointer;}
+.navbar a:hover, .navbar ab:hover{
+    color:#CCC;
+}
+.navbar{
+    z-index:99;
+    position:sticky;
+    top:0;
+    display:flex;
+    font-size:1em;
+    padding-bottom:10px;
+}
+.navbar.scrolling{
+    background-color: #222;
+}
+#logo{
+    font-size:2em;
+    transform: skewY(90deg);
+    position: relative;
+}
+#logo::before{
+    font-size:1em;
+    content: attr(aria-label);
+    filter:blur(10px);
+    left:-.1em;
+    top:-.1em;
+    position: absolute;
+}
+#logo r{color:red}
+.navbar a, .navbar ab{
+    margin:0 5px;
+}
+.nav-right{
+    margin-top:auto;
+    margin-left:auto;
+}
+.navbar form{
+    width:0;
+    overflow:hidden;
+    height:0.5em;
+    display:inline;
+}
+.navbar input{
+    width:20em;
+    height:100%;
+    display: inline;
+}
 .card{
-    /* min-width:15em;
-    max-width: 15em; */
     opacity:0.8;
     transition:all 0.3s ease-out;
     cursor: pointer;
@@ -17,8 +62,8 @@ body{
     position: relative;
     flex-grow:0;
     flex-shrink:0;
-    height:10em;
-    width:12.5em;
+    height:11em;
+    width:14em;
     overflow: visible;
 }
 .card-container{
@@ -27,8 +72,6 @@ body{
     background-repeat: no-repeat;
     background-size: 100% 100%;
     border-radius:2px;
-    /*height:12em;
-    width:15em;*/
     top:0;
     left:0;
     right:0;
@@ -42,56 +85,55 @@ body{
     flex-direction:column;
 }
 .card:hover .card-container{
-    /*width:25em;
-    z-index:999;
-    height:18em;*/
     z-index:2;
-    /*top:-1.5em;
-    bottom:-1.5em;
-    left:-3em;
-    right:-3em;*/
-    left:-20%;
-    top:-20%;
-    height:140%;
-    width:140%;
+    left:-25%;
+    top:-25%;
+    height:150%;
+    width:150%;
 }
 .card-mini-modal{
     align-self:flex-end;
-    background:#333;
+    background:#222;
     position: absolute;
     z-index:4;
     height:0%;
     width:100%;
     bottom:0;
     transition:all 0.5s ease-in;
-    font-size:0.9em;
+    font-size:0.85em;
     box-sizing: border-box;
     cursor: initial;
 }
+.genres{
+    font-size:90%;
+}
+.gray{
+    color:gray;
+}
 .card:hover .card-mini-modal{
-    height:40%;
+    height:50%;
     padding:1em;
 }
-i.fas{
+.card i.fas{
     border-radius: 100%;
     padding:0.75em;
     border:1px solid #CCC;
     color:#CCC;
     cursor: pointer;
 }
-i.fas:hover{
+.card i.fas:hover{
     color:white;
     border-color:white;
 }
-i.fas.active{
+.card i.fas.active{
     border:1px solid black;
     background-color:white;
     color:black;
 }
-i.fas.active:hover{
+.card i.fas.active:hover{
     background-color:#CCC;
 }
-i.fas.end{
+.card i.fas.end{
     margin-left:auto;
 }
 .card-title{
@@ -117,31 +159,28 @@ i.fas.end{
     width: 100%;
 }
 .container{
-    margin-top:40px;
+    margin-top:20px;
     padding:20px 40px;
     display:flex;
-    flex-wrap:wrap;
     position: relative;
+    flex-direction: column;
 }
 .card p{
     width:fit-content;
 }
-form{
-    display:flex;
-    position:sticky;
-    width:97.5vw;
-    z-index:2;
+input, select{
+    background: rgba(0,0,0,0.3);
+    transition: all 0.3s;
+    color: white;
+    margin:auto 10px;
 }
-input{
-    padding:5px 0px;
-    margin:0 5px;
+input:hover, select:hover{
+    background:transparent;
 }
-#submit{
-    float:right;
+option{
+    background-color: black;
 }
-#query{
-    width:100%;
-}
+
 img{
     user-select: none;
 }
@@ -161,7 +200,7 @@ button:hover, input[type=submit]:hover{
 }
 .slider-row{
     overflow:auto;
-    height:600px;
+    height:250px;
     padding-left:40px;
     padding-top:40px;
 }
@@ -173,6 +212,7 @@ button:hover, input[type=submit]:hover{
     padding:0;
     margin:0;
     margin-left:60px;
+    margin-bottom:-40px;
 }
 /* .cards::-webkit-scrollbar{
     width: 5px;
