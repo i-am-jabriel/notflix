@@ -1,6 +1,8 @@
 var body = document.querySelector('body');
 var container = document.createElement('div');
-var query = document.querySelector('#query');
+var search = document.querySelector('#search');
+var modal = document.querySelector('#modal');
+var modalWindow = document.querySelector('#modal-window');
 var apiKey = '465bc048ae9b7c45031771aae2b7ea0c';
 var api =  'https://api.themoviedb.org/3';
 var apiImage = 'https://image.tmdb.org/t/p/w500';
@@ -8,17 +10,10 @@ var page = 0;
 var view = 'multi-card';
 
 var lastState;
-
-// document.addEventListener('submit',e=>{
-//     clearContainer();
-//     searchForMovies();
-//     e.preventDefault();
-// });
-// document.querySelector('#back').addEventListener('click',x=>{
-//     container.innerHTML = lastState;
-//     window.scrollTo(0,0);
-//     view = 'multi-card';
-// });
+document.querySelector('#modal-background').addEventListener('click', ()=>closeModal());
+window.addEventListener('keyup',e=>{
+    if(e.key == 'Escape')closeModal()
+})
 
 container.className = 'container';
 body.appendChild(container);
@@ -62,8 +57,41 @@ function createCardForMovie(res,card){
     }
     container.appendChild(card);
 }
+function loadModalData(type, id){
+    fetch(`${api}/${type}/${id}?api_key=${apiKey}`)
+    .then(r=>r.json()).then(res=>displayModalForObj(res, type));
     
-function createCardForMovies(arr, title='Trending'){
+}
+function displayModalForObj(obj, type){
+    state.lastPage = state.page;
+    state.lastRoot = state.root;
+    state.root = `/browse/${type}/${obj.id}`;
+    navigateToPage(state.root, false);
+    var img =  obj.backdrop_path || obj.poster_path;
+    var date = obj.release_date || obj.first_air_date;
+    img = img ? `style='background-image:url(${apiImage}/${img})'` : '';
+    date = date? `Release Date: ${date}` :'';
+    var desc = obj.overview;
+    desc = desc ? `<p>${desc}</p>`:'';
+    modalWindow.innerHTML = `
+<img class='modal-header' ${img}/>
+<div class='modal-container'>
+    <div class='col'>
+        <h3 class='modal-title'>${obj.name || obj.title}</h3>
+        <div class='row'>
+            <p>Rating: ${obj.vote_average*10}% ${date}</p>
+            ${desc}
+        </div>
+    </div>
+</div>`;
+    modal.className = 'active';
+}
+function closeModal(){
+    modal.className = '';
+    state.root = state.lastRoot;
+    navigateToPage(state.lastPage, false);
+}
+function createCardForObjects(arr, title='Trending', type='movie'){
     var row = document.createElement('div');
     row.className = 'cards row';
     arr.forEach(obj=>{
@@ -113,7 +141,7 @@ function createCardForMovies(arr, title='Trending'){
         inner.appendChild(mini);
         //card.appendChild(img);
         card.appendChild(inner);
-        card.clickEvent = x=>getInfoOnCurrentMovie(obj.imdbID, obj.card)
+        card.clickEvent = x=> loadModalData(type, obj.id)
         card.addEventListener('click', card.clickEvent);
 
         //add card into container
@@ -219,12 +247,12 @@ function displayGenrePicker(title, currentId){
 function loadTrendingMovies(){
    fetch(`${api}/trending/movies/week?api_key=${apiKey}`)
     .then(res=>res.json())
-    .then(res=>createCardForMovies(res.results))
+    .then(res=>createCardForObjects(res.results))
 }
 function loadTrendingTV(){
     fetch(`${api}/trending/tv/week?api_key=${apiKey}`)
      .then(res=>res.json())
-     .then(res=>createCardForMovies(res.results))
+     .then(res=>createCardForObjects(res.results, undefined,'tv'))
  }
 function loadPopularMovies(sort = 'popularity.desc', title = 'Popular in US', params = ''){
     // console.log(`${api}/discover/movie?api_key=${apiKey}&sort_by=${sort}&include_adult=false${params}`)
@@ -232,7 +260,7 @@ function loadPopularMovies(sort = 'popularity.desc', title = 'Popular in US', pa
         .then(res=>res.json())
         .then(res=>{
             // console.log(res);
-            createCardForMovies(res.results, title);
+            createCardForObjects(res.results, title);
         });
 }
 function loadPopularTV(sort = 'popularity.desc', title = 'Trending TV', params = ''){
@@ -241,21 +269,22 @@ function loadPopularTV(sort = 'popularity.desc', title = 'Trending TV', params =
         .then(res=>res.json())
         .then(res=>{
             // console.log(res);
-            createCardForMovies(res.results, title);
+            createCardForObjects(res.results, title, 'tv');
         });
 }
 
 var lastPage = '/notflix/';
 var state = {};
-function navigateToPage(page = '/notflix/'){
+function navigateToPage(page = '/notflix/', andPopulate = true){
     state.page = page;
-    populatePage();
+    if(andPopulate)populatePage();
     history.pushState(state, '', page);
 }
 
 window.addEventListener('popstate',e=>{
     console.log('attempting to populate',e);
     if(e.state)state = e.state;
+    closeModal();
     populatePage();
 });
 

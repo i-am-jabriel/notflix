@@ -3,8 +3,8 @@
         var url= window.location.href.split('/')
         var pre = url.slice(0,4).join('/');
         var post = url.slice(4).join('/').replace(/404\.html/g, '');
-        post = post ? `/#/${post}` : '';
-        var page = pre+post+'/';
+        post = post ? `/#${post}` : '';
+        var page = pre+post+'';
         console.log(page);
         document.location.href = page;
         // console.log(url.slice(3).join('/').match(/404\.html/g),'\n',page);

@@ -2,6 +2,8 @@ body{
     background:#222;
     color:white;
     font-family: 'Poppins', sans-serif;
+    padding:0;
+    margin:0;
 }
 a, ab{cursor: pointer;}
 .navbar a:hover, .navbar ab:hover{
@@ -198,6 +200,10 @@ button:hover, input[type=submit]:hover{
 .row{
     display:flex;
 }
+.col{
+    display:flex;
+    flex-direction: column;
+}
 .slider-row{
     overflow:auto;
     height:250px;
@@ -214,6 +220,47 @@ button:hover, input[type=submit]:hover{
     margin-left:60px;
     margin-bottom:-40px;
 }
+#modal-background{
+    position: fixed;
+    z-index:4;
+    transition: background 0.5s ease;
+    background:transparent;
+    width:100vw;
+    height:100vh;
+}
+#modal-window{
+    position: relative;
+    z-index:5;
+    max-width:0;
+    max-height:0;
+    overflow: hidden;
+    transition: all 0.5s ease;
+    border-radius:5px;
+    background:#666;
+    border:1px solid black;
+    margin:auto;
+}
+#modal{
+    width:100vw;
+    height:100vh;
+    position:fixed;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    z-index:100;
+    pointer-events: none;
+}
+#modal.active #modal-background{
+    background:rgba(0,0,0,0.8);
+}
+#modal.active #modal-window{
+    min-width:50px; 
+    max-width:40vw;
+    max-height:100vh;
+}
+#modal.active{
+    pointer-events: initial;
+}
 /* .cards::-webkit-scrollbar{
     width: 5px;
     height: 5px;
@@ -225,3 +272,17 @@ button:hover, input[type=submit]:hover{
  .cards::-webkit-scrollbar-thumb {
     background:darkgrey;
 } */
+
+.modal-container{
+    display:flex;
+    flex-direction: column;
+    padding:1em 2em;
+}
+.modal-header{
+    width:100%;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-size: 100% 100%;
+    border-radius:10px;
+    height:20em;
+}
