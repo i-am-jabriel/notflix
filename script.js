@@ -108,6 +108,18 @@ function createCardForMovies(arr, title='Trending'){
 
         var mini = document.createElement('div');
         mini.className = 'card-mini-modal';
+        mini.innerHTML=`
+        <div class='row'>
+            <i class="fas fa-play active"></i>
+            <i class="fas fa-check"></i>
+            <i class="fas fa-thumbs-up"></i>
+            <i class="fas fa-thumbs-down"></i>
+            <i class="fas fa-angle-down end"></i>
+        </div>
+        <div class='row'>
+            Rating: ${obj.vote_average*10}% 
+        </div>
+        `;
 
 
         inner.appendChild(title);
@@ -126,9 +138,9 @@ function createCardForMovies(arr, title='Trending'){
 
     var outer = document.createElement('div');
     outer.className ='slider-row';
-    outer.appendChild(rowTitle);
     outer.appendChild(row);
-
+    
+    container.appendChild(rowTitle);
     container.appendChild(outer);
 }
 var imagesLoadedCount = 0;

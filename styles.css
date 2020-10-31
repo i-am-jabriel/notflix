@@ -1,5 +1,7 @@
 body{
-    background:crimson;
+    background:#222;
+    color:white;
+    font-family: 'Poppins', sans-serif;
 }
 .card{
     /* min-width:15em;
@@ -15,8 +17,8 @@ body{
     position: relative;
     flex-grow:0;
     flex-shrink:0;
-    height:12em;
-    width:15em;
+    height:10em;
+    width:12.5em;
     overflow: visible;
 }
 .card-container{
@@ -62,17 +64,43 @@ body{
     width:100%;
     bottom:0;
     transition:all 0.5s ease-in;
+    font-size:0.9em;
+    box-sizing: border-box;
+    cursor: initial;
 }
 .card:hover .card-mini-modal{
     height:40%;
+    padding:1em;
+}
+i.fas{
+    border-radius: 100%;
+    padding:0.75em;
+    border:1px solid #CCC;
+    color:#CCC;
+    cursor: pointer;
+}
+i.fas:hover{
+    color:white;
+    border-color:white;
+}
+i.fas.active{
+    border:1px solid black;
+    background-color:white;
+    color:black;
+}
+i.fas.active:hover{
+    background-color:#CCC;
+}
+i.fas.end{
+    margin-left:auto;
 }
 .card-title{
     text-align:center;
-    transition:all 0.5s ease-in;
+    transition:all 0.3s ease-in;
     overflow: hidden;
     max-height: 0;
     color:white;
-    -webkit-text-stroke:black 0.4px;
+    -webkit-text-stroke:rgba(0,0,0,0.2) 0.1px;
     text-shadow:2px 2px 3px black;
 }
 .card:hover .card-title{
@@ -93,7 +121,6 @@ body{
     padding:20px 40px;
     display:flex;
     flex-wrap:wrap;
-    justify-content: center;
     position: relative;
 }
 .card p{
@@ -102,7 +129,7 @@ body{
 form{
     display:flex;
     position:sticky;
-    width:98vw;
+    width:97.5vw;
     z-index:2;
 }
 input{
@@ -134,10 +161,18 @@ button:hover, input[type=submit]:hover{
 }
 .slider-row{
     overflow:auto;
-    height:400px;
+    height:600px;
+    padding-left:40px;
+    padding-top:40px;
 }
 .slider-row::-webkit-scrollbar, .slider-row::-webkit-scrollbar-track, .slider-row::-webkit-scrollbar-thumb{
     display:none;
+}
+.row-title{
+    justify-self:flex-start;
+    padding:0;
+    margin:0;
+    margin-left:60px;
 }
 /* .cards::-webkit-scrollbar{
     width: 5px;
