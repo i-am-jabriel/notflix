@@ -157,29 +157,46 @@ fetch(`${api}/genre/movie/list?api_key=${apiKey}`).then(res=>res.json())
         });
     });
 
-function loadHomePage(){
-    state.root = '/';
+function displayHomePage(){
+    state.root = '/notflix/';
     loadTrendingMovies();
     loadPopularMovies();
     loadPopularMovies('vote_average.desc', 'Fan Favorites');
     loadPopularMovies('revenue.desc', 'Critically Acclaimed');
     loadPopularMovies('vote_count.desc', 'Buzzworthy')
 }
-function loadTvPage(){
-    state.root = '/tv/';
+function displayTvPage(){
+    state.root = '/notflix/tv/';
     var url = state.page.split('/',-1);
-    console.log(url);
-    displayGenrePicker('TV Shows',url[2]);
-    if(url.length<4){
+    displayGenrePicker('TV Shows',url[3]);
+    if(url.length<5){
         loadTrendingTV();
         loadPopularTV();
         loadPopularTV('vote_average.desc', 'Classics');
-    }else if(url.length==4){
-        var params = `&with_genres=${url[2]}`;
+    }else if(url.length==5){
+        var params = `&with_genres=${url[3]}`;
         loadPopularTV('vote_average.desc', 'Classics', params);
         loadPopularTV('popularity.desc', 'Popular', params);
     }
 }
+
+function displayMoviePage(){
+    state.root = '/notflix/movies/';
+    var url = state.page.split('/',-1);
+    displayGenrePicker('Movies',url[3]);
+    if(url.length<5){
+        loadTrendingMovies();
+        loadPopularMovies();
+        loadPopularMovies('vote_average.desc', 'Fan Favorites');
+        loadPopularMovies('revenue.desc', 'Critically Acclaimed');
+        loadPopularMovies('vote_count.desc', 'Buzzworthy')
+    }else if(url.length==5){
+        var params = `&with_genres=${url[3]}`;
+        loadPopularTV('vote_average.desc', 'Classics', params);
+        loadPopularTV('popularity.desc', 'Popular', params);
+    }
+}
+
 function displayGenrePicker(title, currentId){
     var g = (title=='TV Shows'?tvGenres:movieGenres);
     var div = document.createElement('div');
@@ -222,26 +239,29 @@ function loadPopularTV(sort = 'popularity.desc', title = 'Trending TV', params =
         });
 }
 
-var lastPage = '/';
+var lastPage = '/notflix/';
 var state = {};
-function navigateToPage(page = '/'){
+function navigateToPage(page = '/notflix/'){
     state.page = page;
     populatePage();
     history.pushState(state, '', page);
 }
 
 window.addEventListener('popstate',e=>{
-    console.log(e);
+    console.log('attempting to populate',e);
     if(e.state)state = e.state;
     populatePage();
 });
 
 function populatePage(){
     clearContainer();
-    if(state.page == '/')
-        loadHomePage();
-    else if(state.page.match(/\/tv\//))
-        loadTvPage();
+    console.log(state.page);
+    if(state.page == '/notflix/')
+        displayHomePage();
+    else if(state.page.indexOf('/tv/') != -1)
+        displayTvPage();
+    else if (state.page.indexOf('/movies/') != -1)
+        displayMoviePage();
     document.querySelectorAll('a').forEach(e=>{
         if(e.clickEvent)return;
         e.clickEvent = ()=>navigateToPage(e.getAttribute('url'));
