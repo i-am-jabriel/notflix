@@ -9,7 +9,7 @@ var apiImage = 'https://image.tmdb.org/t/p/w500';
 var page = 0;
 var view = 'multi-card';
 
-console.log('v 0.001');gi
+console.log('v 0.001b');  
 
 var lastState;
 document.querySelector('#modal-background').addEventListener('click', ()=>closeModal());
