@@ -9,6 +9,8 @@ var apiImage = 'https://image.tmdb.org/t/p/w500';
 var page = 0;
 var view = 'multi-card';
 
+console.log('v 0.001');gi
+
 var lastState;
 document.querySelector('#modal-background').addEventListener('click', ()=>closeModal());
 window.addEventListener('keyup',e=>{
@@ -58,6 +60,11 @@ function createCardForMovie(res,card){
     container.appendChild(card);
 }
 function loadModalData(type, id){
+    if(!type){
+        var url = state.page.split('/');
+        type = url[2];
+        id = url[3];
+    }
     fetch(`${api}/${type}/${id}?api_key=${apiKey}`)
     .then(r=>r.json()).then(res=>displayModalForObj(res, type));
     
@@ -65,8 +72,8 @@ function loadModalData(type, id){
 function displayModalForObj(obj, type){
     state.lastPage = state.page;
     state.lastRoot = state.root;
-    state.root = `/browse/${type}/${obj.id}`;
-    navigateToPage(state.root, false);
+    state.root = `/notflix/browse/`;
+    navigateToPage(state.root+`${type}/${obj.id}`, false);
     var img =  obj.backdrop_path || obj.poster_path;
     var date = obj.release_date || obj.first_air_date;
     img = img ? `style='background-image:url(${apiImage}/${img})'` : '';
@@ -278,14 +285,13 @@ var state = {};
 function navigateToPage(page = '/notflix/', andPopulate = true){
     state.page = page;
     if(andPopulate)populatePage();
-    history.pushState(state, '', page);
+    history.pushState(state, '', `${window.origin}${page}`);
 }
 
 window.addEventListener('popstate',e=>{
-    console.log('attempting to populate',e);
     if(e.state)state = e.state;
-    closeModal();
-    populatePage();
+    if(modal.className)closeModal();
+    else populatePage();
 });
 
 function populatePage(){
@@ -297,6 +303,8 @@ function populatePage(){
         displayTvPage();
     else if (state.page.indexOf('/movies/') != -1)
         displayMoviePage();
+    else if (state.page.indexOf('/browse/') != -1)
+        loadModalData();
     document.querySelectorAll('a').forEach(e=>{
         if(e.clickEvent)return;
         e.clickEvent = ()=>navigateToPage(e.getAttribute('url'));
