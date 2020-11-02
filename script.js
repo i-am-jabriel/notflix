@@ -27,52 +27,18 @@ function clearContainer(){
     container.innerHTML = '';
 }
 
-var omittedKeys = ['Poster', 'imdbID','Ratings', 'Response', 'Type', 'totalSeasons'];
-function createCardForMovie(res,card){
-    view = 'single-card';
-    clearContainer();
-    card.removeEventListener('click',card.clickEvent);
-    card.className = 'card single-view';
-    if(res['Ratings'].length > 0){
-        var ratings = document.createElement('div');
-        var ratingsHeader = document.createElement('h3');
-        ratingsHeader.innerText = 'Ratings:';
-        ratingsHeader.className = 'ratings-header';
-        ratings.appendChild(ratingsHeader);
-        res['Ratings'].forEach(rating=>{
-            var p = document.createElement('p');
-            p.innerText =`${rating.Source}: ${rating.Value}`;
-            p.className = 'ratings-text';
-            ratings.appendChild(p);
-        });
-        card.appendChild(ratings);
-    }
-    console.log(res);
-    
-    card.appendChild(ratings);
-    for(var x in res){
-        if(res[x] == 'N/A' || omittedKeys.indexOf(x) != -1)continue;
-        var desc = document.createElement('p');
-        desc.className = 'movie-description'
-        desc.innerText = `${x}: ${res[x]}`;
-        card.appendChild(desc);
-    }
-    container.appendChild(card);
-}
 function loadModalData(type, id){
     if(!type){
+        //['','notflix','','type','id']
         var url = state.page.split('/');
-        type = url[2];
-        id = url[3];
+        console.log(url);
+        type = url[3];
+        id = url[4];
     }
     fetch(`${api}/${type}/${id}?api_key=${apiKey}`)
     .then(r=>r.json()).then(res=>displayModalForObj(res, type));
-    
 }
 function displayModalForObj(obj, type){
-    state.lastPage = state.page;
-    state.lastRoot = state.root;
-    state.root = `/notflix/browse/`;
     navigateToPage(state.root+`${type}/${obj.id}`, false);
     var img =  obj.backdrop_path || obj.poster_path;
     var date = obj.release_date || obj.first_air_date;
@@ -85,81 +51,93 @@ function displayModalForObj(obj, type){
 <div class='modal-container'>
     <div class='col'>
         <h3 class='modal-title'>${obj.name || obj.title}</h3>
-        <div class='row'>
+        <div class='col'>
             <p>Rating: ${obj.vote_average*10}% ${date}</p>
             ${desc}
         </div>
     </div>
 </div>`;
     modal.className = 'active';
+    modalWindow.scrollTop = 0;
 }
 function closeModal(){
+    if(!modal.className)return;
     modal.className = '';
-    state.root = state.lastRoot;
-    navigateToPage(state.lastPage, false);
+    navigateToPage(state.root||'/notflix/', false);
+}
+function createCardForObject(obj, type){
+    var card = document.createElement('div');
+
+    var inner = document.createElement('div');
+    inner.className='card-container';
+    obj.type = obj.media_type || type;
+    obj.card = card;
+    card.className = 'card';
+    var img = obj.backdrop_path || obj.poster_path;
+    if(img)inner.style['background-image']=`url(${apiImage}/${img})`;
+
+    var title = document.createElement('h3');
+    title.className = 'card-title';
+    title.innerText = obj.title || obj.original_name;
+
+    //create img in card
+    /*
+    var img = document.createElement('img');
+    img.src = `${apiImage}/${obj.poster_path}`;
+    imagesLoadedCount++;
+    img.onload = onImageLoad;
+    */
+
+    var mini = document.createElement('div');
+    var addOrRemove = isInList(obj) ? 'fa-minus' : 'fa-plus';
+    mini.className = 'card-mini-modal';
+    mini.innerHTML=`
+    <div class='row'>
+        <i class="fas fa-play active"></i>
+        <i class="fas ${addOrRemove}" id='addRemoveListButton'></i>
+        <i class="fas fa-thumbs-up"></i>
+        <i class="fas fa-thumbs-down"></i>
+        <i class="fas fa-angle-down end"></i>
+    </div>
+    <div class='row'>
+        Rating: ${obj.vote_average*10}%
+    </div>
+    <div class='row'>
+        <p class='genres'>Genres: ${getGenres(obj.genre_ids)}</p>
+    </div>
+    `;
+    mini.querySelector('#addRemoveListButton').addEventListener('click',e=>{
+        var plus = e.target.className == 'fas fa-plus';
+        if(plus)
+            addToList(obj)
+        else
+            removeFromList(obj)
+        e.target.className = plus ? 'fas fa-minus' : 'fas fa-plus';
+        console.log(plus,e.target.className);
+        e.stopPropagation();
+    });
+
+    inner.appendChild(title);
+    inner.appendChild(mini);
+    //card.appendChild(img);
+    card.appendChild(inner);
+    card.clickEvent = x=> loadModalData(obj.type, obj.id)
+    card.addEventListener('click', card.clickEvent);
+    return card;
 }
 function createCardForObjects(arr, title='Trending', type='movie'){
     var row = document.createElement('div');
     row.className = 'cards row';
     arr.forEach(obj=>{
         //create a div.card
-        var card = document.createElement('div');
-
-        var inner = document.createElement('div');
-        inner.className='card-container';
-
-        obj.card = card;
-        card.className = 'card';
-        var img = obj.backdrop_path || obj.poster_path;
-        if(img)inner.style['background-image']=`url(${apiImage}/${img})`;
-
-        var title = document.createElement('h3');
-        title.className = 'card-title';
-        title.innerText = obj.title || obj.original_name;
-
-        //create img in card
-        /*
-        var img = document.createElement('img');
-        img.src = `${apiImage}/${obj.poster_path}`;
-        imagesLoadedCount++;
-        img.onload = onImageLoad;
-        */
-
-        var mini = document.createElement('div');
-        mini.className = 'card-mini-modal';
-        mini.innerHTML=`
-        <div class='row'>
-            <i class="fas fa-play active"></i>
-            <i class="fas fa-check"></i>
-            <i class="fas fa-thumbs-up"></i>
-            <i class="fas fa-thumbs-down"></i>
-            <i class="fas fa-angle-down end"></i>
-        </div>
-        <div class='row'>
-            Rating: ${obj.vote_average*10}%
-        </div>
-        <div class='row'>
-            <p class='genres'>Genres: ${getGenres(obj.genre_ids)}</p>
-        </div>
-        `;
-
-
-        inner.appendChild(title);
-        inner.appendChild(mini);
-        //card.appendChild(img);
-        card.appendChild(inner);
-        card.clickEvent = x=> loadModalData(type, obj.id)
-        card.addEventListener('click', card.clickEvent);
-
-        //add card into container
-        row.appendChild(card); 
+        row.appendChild(createCardForObject(obj, type));
     });
     var rowTitle = document.createElement('h2')
     rowTitle.className = 'row-title';
     rowTitle.innerText = title;
 
     var outer = document.createElement('div');
-    outer.className ='slider-row';
+    outer.className ='slider-row no-scrollbar';
     outer.appendChild(row);
     
     container.appendChild(rowTitle);
@@ -192,13 +170,15 @@ fetch(`${api}/genre/movie/list?api_key=${apiKey}`).then(res=>res.json())
             genres.push(...r2.genres);
             tvGenres = r2.genres;
             var page = window.location.hash ? 
-                '/notflix/' + window.location.hash.substring(1,window.location.hash.length) : undefined;
-            console.log(page);
+                '/notflix/' + window.location.hash.substring(2,window.location.hash.length) : undefined;
+            console.log('page is',page,window.location.hash);
             navigateToPage(page);
         });
     });
 
 function displayHomePage(){
+    if(state.page == state.lastPage)return;
+    clearContainer();
     state.root = '/notflix/';
     loadTrendingMovies();
     loadPopularMovies();
@@ -207,6 +187,8 @@ function displayHomePage(){
     loadPopularMovies('vote_count.desc', 'Buzzworthy')
 }
 function displayTvPage(){
+    if(state.page == state.lastPage)return;
+    clearContainer();
     state.root = '/notflix/tv/';
     var url = state.page.split('/',-1);
     displayGenrePicker('TV Shows',url[3]);
@@ -222,6 +204,8 @@ function displayTvPage(){
 }
 
 function displayMoviePage(){
+    if(state.page == state.lastPage)return;
+    clearContainer();
     state.root = '/notflix/movies/';
     var url = state.page.split('/',-1);
     displayGenrePicker('Movies',url[3]);
@@ -233,9 +217,33 @@ function displayMoviePage(){
         loadPopularMovies('vote_count.desc', 'Buzzworthy')
     }else if(url.length==5){
         var params = `&with_genres=${url[3]}`;
-        loadPopularTV('vote_average.desc', 'Classics', params);
-        loadPopularTV('popularity.desc', 'Popular', params);
+        loadPopularMovies('vote_average.desc', 'Classics', params);
+        loadPopularMovies('popularity.desc', 'Popular', params);
     }
+}
+var myList = [];
+function displayMyList(){
+    if(state.page == state.lastPage)return;
+    clearContainer();
+    state.root = '/notflix/list';
+    if(!myList.length){
+        container.innerHTML = "<h3 class='gray'>Empty! Add some videos to your list first</h3>";
+        return;
+    }
+    var div = document.createElement('div');
+    div.className = 'row wrap';
+    myList.forEach(obj=>div.appendChild(createCardForObject(obj,obj.type)));
+    container.appendChild(div);
+}
+function addToList(obj){
+    // if(myList.findIndex(a=>obj.id==a.id))return;
+    myList.push(obj);
+}
+function removeFromList(obj){
+    myList.splice(myList.findIndex(a=>obj.id==a.id),1);
+}
+function isInList(obj){
+    return myList.findIndex(a=>obj.id==a.id) != -1;
 }
 
 function displayGenrePicker(title, currentId){
@@ -244,7 +252,8 @@ function displayGenrePicker(title, currentId){
     div.className='page-header row';
     div.innerHTML=`<h1 class='genre-title'>${title}</h1>
         <select id='genre-selector'>
-            ${g.reduce((a,genre)=>a+`<option value='${genre.id}' ${currentId==genre.id?'selected':''}>${genre.name}</option>`,'')}
+            ${currentId ? '' : '<option disabled selected>Choose A Genre</option>'}
+            ${g.reduce((a,genre)=>`${a}<option value='${genre.id}' ${currentId==genre.id?'selected':''}>${genre.name}</option>`,'')}
         </select>`;
     container.appendChild(div);
     document.querySelector('#genre-selector').addEventListener('change',x=>{
@@ -279,35 +288,50 @@ function loadPopularTV(sort = 'popularity.desc', title = 'Trending TV', params =
             createCardForObjects(res.results, title, 'tv');
         });
 }
-
-var lastPage = '/notflix/';
 var state = {};
+var internal = false;
 function navigateToPage(page = '/notflix/', andPopulate = true){
+    internal = true;
+    state.lastRoot = state.root;
+    state.lastPage = state.page;
     state.page = page;
     if(andPopulate)populatePage();
     history.pushState(state, '', `${window.origin}${page}`);
+
 }
 
 window.addEventListener('popstate',e=>{
     if(e.state)state = e.state;
-    if(modal.className)closeModal();
-    else populatePage();
+    populatePage();
 });
 
 function populatePage(){
-    clearContainer();
-    // console.log(state.page);
+    console.log('attempting to render ',state.page);
+    var modal = false;
     if(state.page == '/notflix/')
         displayHomePage();
     else if(state.page.indexOf('/tv/') != -1)
         displayTvPage();
     else if (state.page.indexOf('/movies/') != -1)
         displayMoviePage();
-    else if (state.page.indexOf('/browse/') != -1)
+    else if (state.page.indexOf('/list/') != -1){
+        displayMyList();
+    }
+    else if (state.page.indexOf('/browse/') != -1){
         loadModalData();
+        modal = true;
+    }
+    if(!modal)closeModal();
     document.querySelectorAll('a').forEach(e=>{
         if(e.clickEvent)return;
         e.clickEvent = ()=>navigateToPage(e.getAttribute('url'));
         e.addEventListener('click', e.clickEvent);
     });
+    internal = false;
 }
+
+/* 
+
+My List
+
+*/

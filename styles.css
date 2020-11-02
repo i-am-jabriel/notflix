@@ -5,6 +5,7 @@ body{
     padding:0;
     margin:0;
 }
+.wrap{flex-wrap:wrap;}
 a, ab{cursor: pointer;}
 .navbar a:hover, .navbar ab:hover{
     color:#CCC;
@@ -19,6 +20,7 @@ a, ab{cursor: pointer;}
 }
 .navbar.scrolling{
     background-color: #222;
+    box-shadow: 0px 10px 20px rgba(0,0,0,0.5);
 }
 #logo{
     font-size:2em;
@@ -109,9 +111,7 @@ a, ab{cursor: pointer;}
 .genres{
     font-size:90%;
 }
-.gray{
-    color:gray;
-}
+.gray{color:gray;}
 .card:hover .card-mini-modal{
     height:50%;
     padding:1em;
@@ -182,7 +182,6 @@ input:hover, select:hover{
 option{
     background-color: black;
 }
-
 img{
     user-select: none;
 }
@@ -210,7 +209,7 @@ button:hover, input[type=submit]:hover{
     padding-left:40px;
     padding-top:40px;
 }
-.slider-row::-webkit-scrollbar, .slider-row::-webkit-scrollbar-track, .slider-row::-webkit-scrollbar-thumb{
+.no-scrollbar::-webkit-scrollbar, .no-scrollbar::-webkit-scrollbar-track, .no-scrollbar::-webkit-scrollbar-thumb{
     display:none;
 }
 .row-title{
@@ -239,6 +238,7 @@ button:hover, input[type=submit]:hover{
     background:#666;
     border:1px solid black;
     margin:auto;
+    font-family: 'Roboto', sans-serif;
 }
 #modal{
     width:100vw;
@@ -257,6 +257,7 @@ button:hover, input[type=submit]:hover{
     min-width:50px; 
     max-width:40vw;
     max-height:100vh;
+    overflow:auto;
 }
 #modal.active{
     pointer-events: initial;
