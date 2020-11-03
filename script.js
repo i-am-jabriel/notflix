@@ -9,13 +9,25 @@ var apiImage = 'https://image.tmdb.org/t/p/w500';
 var page = 0;
 var view = 'multi-card';
 
-console.log('v 0.001b');  
+console.log('v 0.013d');  
 
 var lastState;
 document.querySelector('#modal-background').addEventListener('click', ()=>closeModal());
 window.addEventListener('keyup',e=>{
-    if(e.key == 'Escape')closeModal()
+    if(e.key == 'Escape')closeModal();
+});
+document.querySelector('#search-button').addEventListener('click',()=>{
+    search.parentElement.className='active';
+    search.focus();
+});
+document.querySelector('#close-search-button').addEventListener('click',()=>{
+    search.parentElement.className = '';
+    search.value = '';
+    navigateToPage('/notflix/');
 })
+search.addEventListener('input',()=>{
+    navigateToPage(`/notflix/search?q=${search.value}`,true);
+});
 
 container.className = 'container';
 body.appendChild(container);
@@ -29,7 +41,7 @@ function clearContainer(){
 
 function loadModalData(type, id){
     if(!type){
-        //['','notflix','','type','id']
+        //: "","notflix","browse","type","111150"
         var url = state.page.split('/');
         console.log(url);
         type = url[3];
@@ -38,8 +50,11 @@ function loadModalData(type, id){
     fetch(`${api}/${type}/${id}?api_key=${apiKey}`)
     .then(r=>r.json()).then(res=>displayModalForObj(res, type));
 }
-function displayModalForObj(obj, type){
-    navigateToPage(state.root+`${type}/${obj.id}`, false);
+function displayModalForObj(obj){
+    var title = obj.name || obj.title;
+    obj.type = 'type' in obj ? 'tv':'movie';
+    document.title = `Notflix - ${title}`;
+    navigateToPage(`/notflix/browse/${obj.type}/${obj.id}`, false);
     var img =  obj.backdrop_path || obj.poster_path;
     var date = obj.release_date || obj.first_air_date;
     img = img ? `style='background-image:url(${apiImage}/${img})'` : '';
@@ -47,23 +62,26 @@ function displayModalForObj(obj, type){
     var desc = obj.overview;
     desc = desc ? `<p>${desc}</p>`:'';
     modalWindow.innerHTML = `
+<button id='close-modal'>X</button>
 <img class='modal-header' ${img}/>
 <div class='modal-container'>
     <div class='col'>
-        <h3 class='modal-title'>${obj.name || obj.title}</h3>
+        <h3 class='modal-title'>${title}</h3>
         <div class='col'>
             <p>Rating: ${obj.vote_average*10}% ${date}</p>
             ${desc}
         </div>
     </div>
 </div>`;
+    modalWindow.querySelector('#close-modal').addEventListener('click',()=>closeModal());
     modal.className = 'active';
     modalWindow.scrollTop = 0;
 }
 function closeModal(){
     if(!modal.className)return;
     modal.className = '';
-    navigateToPage(state.root||'/notflix/', false);
+    var hasRoot = state.lastPage!=state.page;
+    navigateToPage(hasRoot?state.lastPage:'/notflix/', !hasRoot);
 }
 function createCardForObject(obj, type){
     var card = document.createElement('div');
@@ -113,7 +131,10 @@ function createCardForObject(obj, type){
         else
             removeFromList(obj)
         e.target.className = plus ? 'fas fa-minus' : 'fas fa-plus';
-        console.log(plus,e.target.className);
+        e.stopPropagation();
+    });
+    mini.querySelector('.fa-play').addEventListener('click',e=>{
+        window.open(`https://www.justwatch.com/us/search?q=${title.innerText}`);
         e.stopPropagation();
     });
 
@@ -177,7 +198,8 @@ fetch(`${api}/genre/movie/list?api_key=${apiKey}`).then(res=>res.json())
     });
 
 function displayHomePage(){
-    if(state.page == state.lastPage)return;
+    if(state.page && state.page == state.lastPage)return;
+    document.title = 'Notflix - Home';
     clearContainer();
     state.root = '/notflix/';
     loadTrendingMovies();
@@ -188,6 +210,7 @@ function displayHomePage(){
 }
 function displayTvPage(){
     if(state.page == state.lastPage)return;
+    document.title = 'Notflix - TV';
     clearContainer();
     state.root = '/notflix/tv/';
     var url = state.page.split('/',-1);
@@ -204,7 +227,8 @@ function displayTvPage(){
 }
 
 function displayMoviePage(){
-    if(state.page == state.lastPage)return;
+    if(state.page && state.page == state.lastPage)return;
+    document.title = 'Notflix - Movies';
     clearContainer();
     state.root = '/notflix/movies/';
     var url = state.page.split('/',-1);
@@ -223,7 +247,8 @@ function displayMoviePage(){
 }
 var myList = [];
 function displayMyList(){
-    if(state.page == state.lastPage)return;
+    if(state.page && state.page == state.lastPage)return;
+    document.title = 'Notflix - My List';
     clearContainer();
     state.root = '/notflix/list';
     if(!myList.length){
@@ -310,16 +335,16 @@ function populatePage(){
     var modal = false;
     if(state.page == '/notflix/')
         displayHomePage();
+    else if (state.page.indexOf('/browse/') != -1){
+        loadModalData();
+        modal = true;
+    }
     else if(state.page.indexOf('/tv/') != -1)
         displayTvPage();
     else if (state.page.indexOf('/movies/') != -1)
         displayMoviePage();
     else if (state.page.indexOf('/list/') != -1){
         displayMyList();
-    }
-    else if (state.page.indexOf('/browse/') != -1){
-        loadModalData();
-        modal = true;
     }
     if(!modal)closeModal();
     document.querySelectorAll('a').forEach(e=>{

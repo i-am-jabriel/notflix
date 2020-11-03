@@ -15,7 +15,9 @@
         </div>
         <div class = 'navbar scrolling'>
             <div class='nav-left'>
-                <a id='logo' url='/notflix/' aria-label="NoTFLIX">N<r>o</r>TFLIX</a>
+                <span class='logo-wrapper'>
+                    <a id='logo' url='/notflix/' aria-label="NoTFLIX">N<r>o</r>TFLIX</a>
+                </span>
                 <a id='home' url='/notflix/'>Home</a>
                 <a id='tv' url='/notflix/tv/'>TV Shows</a>
                 <a id='movies' url='/notflix/movies/'>Movies</a>
@@ -23,9 +25,10 @@
             </div>
             <div class='nav-right'>
                 <form onsubmit='return false'>
+                    <ab id='search-button'><i class='fas fa-search'></i></ab>
                     <input id='search' placeholder="Search..."/>
+                    <button id='close-search-button'>X</button>
                 </form>
-                <ab id='search'><i class='fas fa-search'></i></ab>
                 <ab id='credits'><i class="fas fa-ellipsis-h"></i></ab>
             </div>
         </div>
