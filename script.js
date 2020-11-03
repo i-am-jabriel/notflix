@@ -22,8 +22,8 @@ document.querySelector('#search-button').addEventListener('click',()=>{
 });
 document.querySelector('#close-search-button').addEventListener('click',()=>{
     search.parentElement.className = '';
+    if(search.value != '')navigateToPage('/notflix/');
     search.value = '';
-    navigateToPage('/notflix/');
 })
 search.addEventListener('input',()=>{
     navigateToPage(`/notflix/search?q=${search.value}`,true);
@@ -169,6 +169,7 @@ function onImageLoad(){
     if(--imagesLoadedCount <= 1)fetching=false;
 }
 function getGenres(ids){
+    if(!ids)return '';
     return ids.map((id)=>{
         var genre = genres[genres.findIndex(g=>g.id==id)]
         return genre?genre.name:null;
@@ -176,6 +177,9 @@ function getGenres(ids){
 
 }
 var fetching = false;
+function isReadyToScrollY(obj){
+    return obj.innerHeight + obj.scrollY >= body.offsetHeight && !fetching;
+}
 /*window.addEventListener('scroll',e=>{
     if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !fetching && view == 'multi-card'){
         loadTrendingMovies();
@@ -260,6 +264,26 @@ function displayMyList(){
     myList.forEach(obj=>div.appendChild(createCardForObject(obj,obj.type)));
     container.appendChild(div);
 }
+var searchQuery;
+function displaySearchQuery(){
+    if(state.page && state.page == state.lastPage)return;
+    document.title = 'Notflix - Search';
+    search.value = state.page.substring(state.page.indexOf('?q=')+3);
+    clearContainer();
+    var now = searchQuery = Date.now();
+    var div = document.createElement('div');
+    div.className = 'row wrap';
+    console.log(`${api}/search/multi?api_key=${apiKey}&language=en-US&include_adult=false&query=${search.value}`);
+    fetch(`${api}/search/multi?api_key=${apiKey}&language=en-US&include_adult=false&query=${search.value}`)
+        .then(r=>r.json())
+        .then(res=>{
+            var i = res.results.length;
+            while(i--){
+                if(now == searchQuery)div.appendChild(createCardForObject(res.results[i]));
+            }
+            if(now == searchQuery)container.appendChild(div);
+        });
+}
 function addToList(obj){
     // if(myList.findIndex(a=>obj.id==a.id))return;
     myList.push(obj);
@@ -343,9 +367,10 @@ function populatePage(){
         displayTvPage();
     else if (state.page.indexOf('/movies/') != -1)
         displayMoviePage();
-    else if (state.page.indexOf('/list/') != -1){
+    else if (state.page.indexOf('/list/') != -1)
         displayMyList();
-    }
+    else if(state.page.indexOf('/search'))
+        displaySearchQuery();
     if(!modal)closeModal();
     document.querySelectorAll('a').forEach(e=>{
         if(e.clickEvent)return;
