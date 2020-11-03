@@ -9,7 +9,7 @@ var apiImage = 'https://image.tmdb.org/t/p/w500';
 var page = 0;
 var view = 'multi-card';
 
-console.log('v 0.013ee');  
+console.log('v 0.015');  
 
 var lastState;
 document.querySelector('#modal-background').addEventListener('click', ()=>closeModal());
@@ -33,6 +33,8 @@ container.className = 'container';
 body.appendChild(container);
 
 function clearContainer(){
+    onClear.forEach(a=>a());
+    onClear.length = 0;
     page = 0;
     window.scrollTo(0,0);
     lastState = container.innerHTML;
@@ -53,6 +55,7 @@ function loadModalData(type, id){
 function displayModalForObj(obj){
     var title = obj.name || obj.title;
     obj.type = 'type' in obj ? 'tv':'movie';
+    state.lastTitle = document.title;
     document.title = `Notflix - ${title}`;
     navigateToPage(`/notflix/browse/${obj.type}/${obj.id}`, false);
     var img =  obj.backdrop_path || obj.poster_path;
@@ -81,6 +84,7 @@ function closeModal(){
     if(!modal.className)return;
     modal.className = '';
     var hasRoot = state.lastPage!=state.page;
+    document.title = state.lastTitle || 'Notflix - Home';
     navigateToPage(hasRoot?state.lastPage:'/notflix/', !hasRoot);
 }
 function createCardForObject(obj, type){
@@ -178,14 +182,18 @@ function getGenres(ids){
 }
 var fetching = false;
 function isReadyToScrollY(obj){
-    return obj.innerHeight + obj.scrollY >= body.offsetHeight && !fetching;
+    return obj.scrollTop === (obj.scrollHeight - obj.offsetHeight) && !fetching;
 }
-/*window.addEventListener('scroll',e=>{
-    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !fetching && view == 'multi-card'){
+function atEndOfContentVertically(){
+    return (window.innerHeight + window.scrollY) >= document.body.offsetHeight && !fetching
+}
+window.addEventListener('scroll',e=>{
+    /*if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !fetching && view == 'multi-card'){
         loadTrendingMovies();
         fetching=true;
-    }
-})*/
+    }*/
+    onScroll.forEach(a=>a());
+});
 var genres, tvGenres, movieGenres;
 fetch(`${api}/genre/movie/list?api_key=${apiKey}`).then(res=>res.json())
     .then(r1=>{
@@ -265,6 +273,8 @@ function displayMyList(){
     container.appendChild(div);
 }
 var searchQuery;
+var onScroll = [];
+var onClear = [];
 function displaySearchQuery(){
     if(state.page && state.page == state.lastPage)return;
     document.title = 'Notflix - Search';
@@ -272,17 +282,35 @@ function displaySearchQuery(){
     clearContainer();
     var now = searchQuery = Date.now();
     var div = document.createElement('div');
+    var added = false;
+    div.page = 0;
     div.className = 'row wrap';
+    
     // console.log(`${api}/search/multi?api_key=${apiKey}&language=en-US&include_adult=false&query=${search.value}`);
-    fetch(`${api}/search/multi?api_key=${apiKey}&language=en-US&include_adult=false&query=${search.value}`)
-        .then(r=>r.json())
-        .then(res=>{
-            var i = res.results.length;
-            while(i--){
-                if(now == searchQuery)div.appendChild(createCardForObject(res.results[i]));
-            }
-            if(now == searchQuery)container.appendChild(div);
-        });
+    var f = () => { 
+        fetching = true;
+        fetch(`${api}/search/multi?api_key=${apiKey}&language=en-US&page=${++div.page}&include_adult=false&query=${search.value}`)
+            .then(r=>r.json())
+            .then(res=>{
+                var i = res.results.length;
+                while(i--)
+                    if(now == searchQuery && isTvOrMovie(res.results[i]))
+                        div.appendChild(createCardForObject(res.results[i]));
+                fetching= false;
+                if(now == searchQuery && !added){
+                    container.appendChild(div);
+                    added = true;
+                }
+            });
+    };
+    f();
+    var loadMoreContent = ()=>{if(atEndOfContentVertically())f();}
+    onScroll.push(loadMoreContent);
+    onClear.push(()=>onScroll.splice(onScroll.indexOf(loadMoreContent),1));
+}
+function isTvOrMovie(obj){
+    //obj.title || obj.original_name
+    return 'title' in obj || 'original_name' in obj;
 }
 function addToList(obj){
     // if(myList.findIndex(a=>obj.id==a.id))return;
