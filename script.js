@@ -9,7 +9,7 @@ var apiImage = 'https://image.tmdb.org/t/p/w500';
 var page = 0;
 var view = 'multi-card';
 
-console.log('v 0.013d');  
+console.log('v 0.013ee');  
 
 var lastState;
 document.querySelector('#modal-background').addEventListener('click', ()=>closeModal());
@@ -43,7 +43,7 @@ function loadModalData(type, id){
     if(!type){
         //: "","notflix","browse","type","111150"
         var url = state.page.split('/');
-        console.log(url);
+        // console.log(url);
         type = url[3];
         id = url[4];
     }
@@ -196,7 +196,7 @@ fetch(`${api}/genre/movie/list?api_key=${apiKey}`).then(res=>res.json())
             tvGenres = r2.genres;
             var page = window.location.hash ? 
                 '/notflix/' + window.location.hash.substring(2,window.location.hash.length) : undefined;
-            console.log('page is',page,window.location.hash);
+            // console.log('page is',page,window.location.hash);
             navigateToPage(page);
         });
     });
@@ -273,7 +273,7 @@ function displaySearchQuery(){
     var now = searchQuery = Date.now();
     var div = document.createElement('div');
     div.className = 'row wrap';
-    console.log(`${api}/search/multi?api_key=${apiKey}&language=en-US&include_adult=false&query=${search.value}`);
+    // console.log(`${api}/search/multi?api_key=${apiKey}&language=en-US&include_adult=false&query=${search.value}`);
     fetch(`${api}/search/multi?api_key=${apiKey}&language=en-US&include_adult=false&query=${search.value}`)
         .then(r=>r.json())
         .then(res=>{
