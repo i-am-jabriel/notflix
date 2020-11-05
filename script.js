@@ -62,8 +62,10 @@ function displayModalForObj(obj){
     var date = obj.release_date || obj.first_air_date;
     img = img ? `style='background-image:url(${apiImage}/${img})'` : '';
     date = date? `Release Date: ${date}` :'';
+    var addOrRemove = isInList(obj) ? 'fa-minus' : 'fa-plus';
     var desc = obj.overview;
     desc = desc ? `<p>${desc}</p>`:'';
+    console.log(obj.genre_ids || obj.genres);
     modalWindow.innerHTML = `
 <button id='close-modal'>X</button>
 <img class='modal-header' ${img}/>
@@ -72,10 +74,30 @@ function displayModalForObj(obj){
         <h3 class='modal-title'>${title}</h3>
         <div class='col'>
             <p>Rating: ${obj.vote_average*10}% ${date}</p>
+            <p class='genres'>Genres: ${getGenres(obj.genre_ids || obj.genres)}</p>
             ${desc}
+            <div class='row'>
+                <button id='modal-watch-now-button'><i class="fas fa-play active"></i> Watch Now</button>
+                <button class='${addOrRemove}' id='modal-list-button'>
+                    <i class="fas ${addOrRemove}"></i>
+                    <span class='add'>Add To</span>
+                    <span class='remove'>Remove From</span>
+                    List
+                </button>
+            </div>
         </div>
     </div>
 </div>`;
+    modalWindow.querySelector('#modal-watch-now-button').addEventListener('click',()=>window.open(`https://www.justwatch.com/us/search?q=${title.innerText}`));
+    var button = modalWindow.querySelector('#modal-list-button');
+    button.addEventListener('click',e=>{
+        var plus = button.className == 'fa-plus';
+        if(plus)
+            addToList(obj)
+        else
+            removeFromList(obj)
+        button.querySelector('i').className = 'fas '+(button.className = plus ? 'fa-minus' : 'fa-plus');
+    });
     modalWindow.querySelector('#close-modal').addEventListener('click',()=>closeModal());
     modal.className = 'active';
     modalWindow.scrollTop = 0;
@@ -111,15 +133,15 @@ function createCardForObject(obj, type){
     */
 
     var mini = document.createElement('div');
-    var addOrRemove = isInList(obj) ? 'fa-minus' : 'fa-plus';
+    var addOrRemove = isInList(obj) ? "fa-minus' tooltip='Remove From List'" : "fa-plus' tooltip='Add To List'";
     mini.className = 'card-mini-modal';
     mini.innerHTML=`
     <div class='row'>
-        <i class="fas fa-play active"></i>
-        <i class="fas ${addOrRemove}" id='addRemoveListButton'></i>
+        <i class="fas fa-play active" tooltip='Watch Now'></i>
+        <i class='fas ${addOrRemove}' id='addRemoveListButton'></i>
         <i class="fas fa-thumbs-up"></i>
         <i class="fas fa-thumbs-down"></i>
-        <i class="fas fa-angle-down end"></i>
+        <i class="fas fa-angle-down end" tooltip='More Info'></i>
     </div>
     <div class='row'>
         Rating: ${obj.vote_average*10}%
@@ -135,13 +157,17 @@ function createCardForObject(obj, type){
         else
             removeFromList(obj)
         e.target.className = plus ? 'fas fa-minus' : 'fas fa-plus';
+        e.target.setAttribute('tooltip', plus ? 'Remove From List' : 'Add To List');
         e.stopPropagation();
     });
     mini.querySelector('.fa-play').addEventListener('click',e=>{
         window.open(`https://www.justwatch.com/us/search?q=${title.innerText}`);
         e.stopPropagation();
     });
-
+    mini.querySelectorAll('i').forEach(i=>{
+        i.addEventListener('mouseover',()=>showTooltip(i,i.getAttribute('tooltip')));
+        i.addEventListener('mouseout', ()=>hideTooltip());
+    });
     inner.appendChild(title);
     inner.appendChild(mini);
     //card.appendChild(img);
@@ -174,8 +200,8 @@ function onImageLoad(){
 }
 function getGenres(ids){
     if(!ids)return '';
-    return ids.map((id)=>{
-        var genre = genres[genres.findIndex(g=>g.id==id)]
+    return ids.map(id=>{
+        var genre = id.name ? id :genres[genres.findIndex(g=>g.id==id)];
         return genre?genre.name:null;
     }).filter(a=>a).join('<span class=\'gray\'> • </span>');
 
@@ -407,9 +433,16 @@ function populatePage(){
     });
     internal = false;
 }
-
-/* 
-
-My List
-
-*/
+var tooltipContainer = document.createElement('span');
+tooltipContainer.className = 'tooltip-container';
+var tooltip = document.createElement('span');
+tooltip.className ='tooltip';
+tooltipContainer.appendChild(tooltip);
+function showTooltip(obj,text){
+    tooltip.innerText = text;
+    tooltip.parent = obj;
+    obj.appendChild(tooltipContainer);
+}
+function hideTooltip(){
+    tooltip.parent.removeChild(tooltipContainer);
+}
