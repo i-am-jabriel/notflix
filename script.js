@@ -3,13 +3,14 @@ var container = document.createElement('div');
 var search = document.querySelector('#search');
 var modal = document.querySelector('#modal');
 var modalWindow = document.querySelector('#modal-window');
+var navbar = document.querySelector('.navbar');
 var apiKey = '465bc048ae9b7c45031771aae2b7ea0c';
 var api =  'https://api.themoviedb.org/3';
 var apiImage = 'https://image.tmdb.org/t/p/w500';
 var page = 0;
 var view = 'multi-card';
 
-console.log('v 0.015');  
+console.log('v 0.016d');  
 
 var lastState;
 document.querySelector('#modal-background').addEventListener('click', ()=>closeModal());
@@ -41,7 +42,7 @@ function clearContainer(){
     container.innerHTML = '';
 }
 
-function loadModalData(type, id){
+function loadModalData(type, id, card){
     if(!type){
         //: "","notflix","browse","type","111150"
         var url = state.page.split('/');
@@ -50,10 +51,11 @@ function loadModalData(type, id){
         id = url[4];
     }
     fetch(`${api}/${type}/${id}?api_key=${apiKey}`)
-    .then(r=>r.json()).then(res=>displayModalForObj(res, type));
+    .then(r=>r.json()).then(res=>displayModalForObj(res, card));
 }
-function displayModalForObj(obj){
+function displayModalForObj(obj, card){
     var title = obj.name || obj.title;
+    obj.card = card;
     obj.type = 'type' in obj ? 'tv':'movie';
     state.lastTitle = document.title;
     document.title = `Notflix - ${title}`;
@@ -88,7 +90,7 @@ function displayModalForObj(obj){
         </div>
     </div>
 </div>`;
-    modalWindow.querySelector('#modal-watch-now-button').addEventListener('click',()=>window.open(`https://www.justwatch.com/us/search?q=${title.innerText}`));
+    modalWindow.querySelector('#modal-watch-now-button').addEventListener('click',()=>window.open(`https://www.justwatch.com/us/search?q=${title}`));
     var button = modalWindow.querySelector('#modal-list-button');
     button.addEventListener('click',e=>{
         var plus = button.className == 'fa-plus';
@@ -153,11 +155,9 @@ function createCardForObject(obj, type){
     mini.querySelector('#addRemoveListButton').addEventListener('click',e=>{
         var plus = e.target.className == 'fas fa-plus';
         if(plus)
-            addToList(obj)
-        else
-            removeFromList(obj)
-        e.target.className = plus ? 'fas fa-minus' : 'fas fa-plus';
-        e.target.setAttribute('tooltip', plus ? 'Remove From List' : 'Add To List');
+                addToList(obj)
+            else
+                removeFromList(obj)
         e.stopPropagation();
     });
     mini.querySelector('.fa-play').addEventListener('click',e=>{
@@ -167,12 +167,18 @@ function createCardForObject(obj, type){
     mini.querySelectorAll('i').forEach(i=>{
         i.addEventListener('mouseover',()=>showTooltip(i,i.getAttribute('tooltip')));
         i.addEventListener('mouseout', ()=>hideTooltip());
+        i.flip = ()=>{
+            var plus = i.className == 'fas fa-plus';
+            i.className = plus ? 'fas fa-minus' : 'fas fa-plus';
+            i.setAttribute('tooltip', plus ? 'Remove From List' : 'Add To List');
+            if(tooltip.parent == i)showTooltip(i, i.getAttribute('tooltip'));
+        }
     });
     inner.appendChild(title);
     inner.appendChild(mini);
     //card.appendChild(img);
     card.appendChild(inner);
-    card.clickEvent = x=> loadModalData(obj.type, obj.id)
+    card.clickEvent = x=> loadModalData(obj.type, obj.id,card)
     card.addEventListener('click', card.clickEvent);
     return card;
 }
@@ -219,6 +225,10 @@ window.addEventListener('scroll',e=>{
         fetching=true;
     }*/
     onScroll.forEach(a=>a());
+    if(mainVideo.className=='active'){
+        if(navbar.className == 'navbar scrolling' && window.scrollY < mainVideo.clientHeight*1.5) navbar.className ='navbar';
+        if(navbar.className == 'navbar' && window.scrollY + window.innerHeight > mainVideo.clientHeight*1.5) navbar.className ='navbar scrolling';
+    }
 });
 var genres, tvGenres, movieGenres;
 fetch(`${api}/genre/movie/list?api_key=${apiKey}`).then(res=>res.json())
@@ -238,6 +248,7 @@ fetch(`${api}/genre/movie/list?api_key=${apiKey}`).then(res=>res.json())
 function displayHomePage(){
     if(state.page && state.page == state.lastPage)return;
     document.title = 'Notflix - Home';
+    if(!mainVideo.playing)mainVideo.show();
     clearContainer();
     state.root = '/notflix/';
     loadTrendingMovies();
@@ -248,6 +259,7 @@ function displayHomePage(){
 }
 function displayTvPage(){
     if(state.page == state.lastPage)return;
+    if(mainVideo.playing)mainVideo.hide();
     document.title = 'Notflix - TV';
     clearContainer();
     state.root = '/notflix/tv/';
@@ -266,6 +278,7 @@ function displayTvPage(){
 
 function displayMoviePage(){
     if(state.page && state.page == state.lastPage)return;
+    if(mainVideo.playing)mainVideo.hide();
     document.title = 'Notflix - Movies';
     clearContainer();
     state.root = '/notflix/movies/';
@@ -286,6 +299,7 @@ function displayMoviePage(){
 var myList = [];
 function displayMyList(){
     if(state.page && state.page == state.lastPage)return;
+    if(mainVideo.playing)mainVideo.hide();
     document.title = 'Notflix - My List';
     clearContainer();
     state.root = '/notflix/list';
@@ -303,6 +317,7 @@ var onScroll = [];
 var onClear = [];
 function displaySearchQuery(){
     if(state.page && state.page == state.lastPage)return;
+    if(mainVideo.playing)mainVideo.hide();
     document.title = 'Notflix - Search';
     search.value = state.page.substring(state.page.indexOf('?q=')+3);
     clearContainer();
@@ -341,9 +356,17 @@ function isTvOrMovie(obj){
 function addToList(obj){
     // if(myList.findIndex(a=>obj.id==a.id))return;
     myList.push(obj);
+    obj.card.querySelector('.fa-plus').flip();
+    /*var i = obj.card.querySelector('.fa-plus');
+    i.className='fas fa-minus';
+    if(tooltip.parent==i)showTooltip(i,'Remove From List');*/
 }
 function removeFromList(obj){
     myList.splice(myList.findIndex(a=>obj.id==a.id),1);
+    obj.card.querySelector('.fa-minus').flip();
+    // var i = obj.card.querySelector('.fa-minus');
+    // i.className='fas fa-plus';
+    // if(tooltip.parent==i)showTooltip(i,'Add To List');
 }
 function isInList(obj){
     return myList.findIndex(a=>obj.id==a.id) != -1;
@@ -445,4 +468,65 @@ function showTooltip(obj,text){
 }
 function hideTooltip(){
     tooltip.parent.removeChild(tooltipContainer);
+    tooltip.parent = null;
+}
+
+var headerCarouselVideos = [
+    new HeaderVideo('Demon Slayer: Kimetsu no Yaiba','ce6dhqGWdrA','/notflix/browse/tv/85937'),
+    new HeaderVideo('Avengers: Endgame','DCkaS2ygh-Y','/notflix/browse/movie/299534'),
+];
+/* The core mechanics behind a class */
+function HeaderVideo(name, video, url){
+    this.name = name;
+    this.video = video;
+    this.url = url;
+    this.embed = ()=> 
+        `http://www.youtube.com/v/${this.video}?version=3&controls=0&rel=0&fs=0&autoplay=1&disablekb=1&loop=1&modestbranding=1&mute=1&VQ=HD1080`;
+}
+
+
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+var mainVideo = document.querySelector('#header-wrapper');
+mainVideo.playing = true;
+mainVideo.pause=()=>{
+    mainVideo.player.pauseVideo();
+    mainVideo.playing = false;
+}
+mainVideo.hide=()=>{
+    mainVideo.pause();
+    mainVideo.className = '';
+}
+mainVideo.show=()=>{
+    mainVideo.playing=true;
+    mainVideo.className = 'active';
+    videoCount = ++videoCount % headerCarouselVideos.length;
+    mainVideo.player.loadVideoByUrl(headerCarouselVideos[videoCount].embed());
+}
+var videoCount = 0;
+var playing = false;
+
+function onYouTubeIframeAPIReady() {
+    mainVideo.player = new YT.Player('header-video', {
+        events:{
+            onStateChange:state=>{
+                switch(state.data){
+                    case 0: // stopped
+                        videoCount = ++videoCount % headerCarouselVideos.length;
+                        mainVideo.player.loadVideoByUrl(headerCarouselVideos[videoCount].embed());
+                        break;
+                    case 1: //playing
+                        if(mainVideo.className=='')mainVideo.className = 'active';
+                        break;
+                }
+            },
+            onReady:()=>{
+                // alert(1);
+                mainVideo.player.loadVideoByUrl(headerCarouselVideos[videoCount].embed());
+            }
+        }
+    });
 }
