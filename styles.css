@@ -133,6 +133,7 @@ a, ab{cursor: pointer;}
     top:60px;
     bottom:0;
     position: absolute;
+    width:100%;
     z-index:4;
 }
 #header-dots{
@@ -409,6 +410,7 @@ button:hover, input[type=submit]:hover{
 }
 #modal-window{
     position: relative;
+    top:-3%;
     z-index:5;
     max-width:0;
     max-height:0;
@@ -434,9 +436,9 @@ button:hover, input[type=submit]:hover{
     background:rgba(0,0,0,0.8);
 }
 #modal.active #modal-window{
-    min-width:150px; 
-    max-width:50vw;
-    max-height:100vh;
+    min-width:350px; 
+    max-width:55vw;
+    max-height:80vh;
     overflow:auto;
 }
 #close-modal{
@@ -478,7 +480,8 @@ button:hover, input[type=submit]:hover{
 .modal-container{
     display:flex;
     flex-direction: column;
-    padding:1em 2em;
+    padding:2em 3em;
+    font-family:'Quicksand', sans-serif;
 }
 .modal-header{
     width:100%;
