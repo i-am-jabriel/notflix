@@ -144,10 +144,10 @@ a, ab{cursor: pointer;}
     top:65%;
 }
 .dot::before{
+    font-size: 7em;
     content:'.';
 }
 .dot{
-    font-size: 7em;
     margin:3px;
     color:#444;
     cursor: pointer;
@@ -215,7 +215,13 @@ a, ab{cursor: pointer;}
 #header-audio.muted .volume, #header-audio.volume .muted{
     display:none;
 }
+.header-lead, .header-buttons{
+    animation-fill-mode: forwards!important;
+}
 
+
+
+/* Card */
 
 .card{
     opacity:0.8;
@@ -532,6 +538,10 @@ button.fa-plus::before,button.fa-minus::before{
     border-width: 5px;
     border-style: solid;
     border-color: #222 transparent transparent transparent;
+}
+@keyframes fadeout{
+    from{opacity: 1;}
+    to{opacity:0;}
 }
 @keyframes tooltip-expand{
     from{

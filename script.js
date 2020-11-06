@@ -456,6 +456,9 @@ function populatePage(){
     });
     internal = false;
 }
+
+/* Tool Tip */
+
 var tooltipContainer = document.createElement('span');
 tooltipContainer.className = 'tooltip-container';
 var tooltip = document.createElement('span');
@@ -471,34 +474,14 @@ function hideTooltip(){
     tooltip.parent = null;
 }
 
-var headerCarouselVideos = [
-    new HeaderVideo('The Last Dance','_akGhaZ7ZGI','/browse/tv/79525'),
-    new HeaderVideo('Avengers: Endgame','_dSPIZwgMEk','/notflix/browse/movie/299534'),
-    new HeaderVideo('Demon Slayer: Kimetsu no Yaiba','ce6dhqGWdrA','/notflix/browse/tv/85937'),
-    new HeaderVideo('The Queens Gambit','CDrieqwSdgI','/notflix/browse/tv/87739'),
-    new HeaderVideo('Interstellar','wJjersym910','/notflix/browse/movie/157336'),
-];
-/* The core mechanics behind a class */
-function HeaderVideo(name, video, url){
-    this.name = name;
-    this.video = video;
-    this.url = url;
-    this.embed = ()=> 
-        `http://www.youtube.com/v/${this.video}?version=3&VQ=HD1080`;
-}
-
-
-var dots = document.querySelector('header-dots');
-
-var tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
+/* Header */
 var mainVideo = document.querySelector('#header-wrapper');
+
+//PsudeoClass for the header video class
 mainVideo = Object.assign(mainVideo,{
     playing:false,
     videoCount:-1,
+    headerButtons:document.querySelectorAll('.header-buttons'),
     pause(){
         mainVideo.player.pauseVideo();
         mainVideo.playing = false;
@@ -522,13 +505,62 @@ mainVideo = Object.assign(mainVideo,{
     }
 
 });
+window.addEventListener('mousemove',()=>{
+    if(!mainVideo.playing)return;
+    // var time = .9+(Math.random()*.1);
+    mainVideo.headerButtons.forEach(button=>{//button.style.animation=`fadeout ${time}s ease`);
+        // button.style.webkitAnimationPlayState="paused";
+        // button.style.webkitAnimationPlayState="running";
+        button.style.animation='none';
+        if(mainVideo.headerButtons.timer) window.clearInterval(mainVideo.headerButtons.timer);
+        mainVideo.headerButtons.timer = window.setTimeout(()=>{
+            button.style.animation='fadeout 1.5s ease';
+            button.style['animation-play-state']="running";
+            mainVideo.headerButtons.timer = null;
+        },200);
+    });
+});
+
+var headerCarouselVideos = [
+    new HeaderVideo('The Last Dance','_akGhaZ7ZGI','/notflix/browse/tv/79525'),
+    new HeaderVideo('Avengers: Endgame','_dSPIZwgMEk','/notflix/browse/movie/299534'),
+    new HeaderVideo('Demon Slayer: Kimetsu no Yaiba','ce6dhqGWdrA','/notflix/browse/tv/85937'),
+    new HeaderVideo('The Queens Gambit','CDrieqwSdgI','/notflix/browse/tv/87739'),
+    new HeaderVideo('Interstellar','wJjersym910','/notflix/browse/movie/157336'),
+];
+/* The core mechanics behind a class */
+function HeaderVideo(name, video, url){
+    this.name = name;
+    this.video = video;
+    this.url = url;
+    this.embed = ()=> 
+        `http://www.youtube.com/v/${this.video}?version=3&VQ=HD1080`;
+}
+
+
+var dots = document.querySelector('header-dots');
+
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
 function onYouTubeIframeAPIReady() {
     var dots = document.querySelector('#header-dots');
     var headerTitle = document.querySelector('.header-title');
     mainVideo.player = new YT.Player('header-video', {
         width:1920,
         height:1080,
-        playerVars: {autoplay:1, loop:0, mute:1,disablekb:1,modestbranding:1,origin:window.location.origin,fs:0},
+        playerVars: {
+            autoplay:1, 
+            loop:0, 
+            mute:1,
+            disablekb:1,
+            modestbranding:1,
+            origin:window.location.origin,
+            fs:0,
+            controls:0
+        },
         events:{        
             onStateChange:state=>{
                 console.log(state);
@@ -539,7 +571,12 @@ function onYouTubeIframeAPIReady() {
                         break;
                     case 1: //playing
                         if(mainVideo.className=='')mainVideo.className = 'active';
-                        dots.querySelectorAll('.dot').forEach((dot,i)=>dot.className = 'dot'+(i==mainVideo.videoCount?' active':''));
+                        dots.querySelectorAll('.dot').forEach((dot,i)=>{
+                            dot.className = 'dot'+(i==mainVideo.videoCount?' active':'');
+                            // dot.setAttribute('tooltip',headerCarouselVideos[i].name);
+                            dot.addEventListener('mouseover',()=>showTooltip(dot,headerCarouselVideos[i].name));
+                            dot.addEventListener('mouseout',()=>hideTooltip(dot));
+                        });
                         headerTitle.innerHTML = headerCarouselVideos[mainVideo.videoCount].name;
                         break;
                 }
