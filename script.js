@@ -491,10 +491,11 @@ mainVideo = Object.assign(mainVideo,{
     },
     hide(){
         mainVideo.pause();
-        mainVideo.className = '';
+        mainVideo.className = 'hidden';
         navbar.className = 'navbar scrolling';
     },
     show(){
+        mainVideo.className = '';
         mainVideo.playing=true;
         mainVideo.next();
     },
@@ -513,10 +514,10 @@ window.addEventListener('mousemove',()=>{
     mainVideo.headerButtons.forEach(button=>{if(button.style.animation!='none')button.style.animation='none'});
     if(mainVideo.hideTimer) window.clearInterval(mainVideo.hideTimer);
     mainVideo.hideTimer = window.setTimeout(()=>mainVideo.headerButtons.forEach(button=>{
-        button.style.animation='fadeout 1.5s ease';
+        button.style.animation='fadeout 2s ease';
         button.style['animation-play-state']="running";
         mainVideo.hideTimer = null;
-    }),200);
+    }),500);
     // var time = .9+(Math.random()*.1);
 });
 
