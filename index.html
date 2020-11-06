@@ -12,7 +12,7 @@
             <div id='modal-background'></div>
             <div id='modal-window' class='no-scrollbar'></div>
         </div>
-        <div class = 'navbar'>
+        <div class = 'navbar scrolling'>
             <div class='nav-left'>
                 <span class='logo-wrapper'>
                     <a id='logo' url='/notflix/' aria-label="NoTFLIX">N<r>o</r>TFLIX</a>
@@ -30,9 +30,30 @@
                 </form>
                 <ab id='credits'><i class="fas fa-ellipsis-h"></i></ab>
             </div>
+            <div class='header-lead col'>
+                <h1 class='header-title'>Title</h1>
+                <button id='header-watch-now'><i class='fas fa-play'></i> Watch Now</button>
+                <button id='header-more-info'><i class="fas fa-info-circle"></i>More Info</button>
+                <div id='header-audio' class='muted'>
+                    <div class='muted'>
+                        <button id='header-mute'><i class="fas fa-volume-mute"></i></button>
+                    </div>
+                    <div class='volume'>
+                        <input id='header-volume-slider' type='range' max='100' min='0' value='50'>
+                        <button id='header-volume-button'><i class="fas fa-volume-up"></i></button>
+                    </div>
+                </div>
+               
+            </div>
         </div>
-        <div id='header-wrapper' class='active'>
+         
+        <div id='header-wrapper'>
             <div id='header-video'></div>
+            <div class='header-buttons'>
+                <button id='header-next'><i class="fas fa-forward"></i>Next</button>
+                <button id='header-prev'><i class="fas fa-backward"></i>Prev</button>
+                <div id='header-dots'></div>
+            </div> 
         </div>
         <script src='script.js'></script>
         <script src="https://kit.fontawesome.com/dc59b22366.js" crossorigin="anonymous"></script>

@@ -226,8 +226,8 @@ window.addEventListener('scroll',e=>{
     }*/
     onScroll.forEach(a=>a());
     if(mainVideo.className=='active'){
-        if(navbar.className == 'navbar scrolling' && window.scrollY < mainVideo.clientHeight*1.5) navbar.className ='navbar';
-        if(navbar.className == 'navbar' && window.scrollY + window.innerHeight > mainVideo.clientHeight*1.5) navbar.className ='navbar scrolling';
+        if(navbar.className == 'navbar scrolling' && window.scrollY + window.innerHeight < mainVideo.clientHeight) navbar.className ='navbar';
+        if(navbar.className == 'navbar' && window.scrollY + window.innerHeight > mainVideo.clientHeight) navbar.className ='navbar scrolling';
     }
 });
 var genres, tvGenres, movieGenres;
@@ -472,8 +472,11 @@ function hideTooltip(){
 }
 
 var headerCarouselVideos = [
+    new HeaderVideo('The Last Dance','_akGhaZ7ZGI','/browse/tv/79525'),
+    new HeaderVideo('Avengers: Endgame','_dSPIZwgMEk','/notflix/browse/movie/299534'),
     new HeaderVideo('Demon Slayer: Kimetsu no Yaiba','ce6dhqGWdrA','/notflix/browse/tv/85937'),
-    new HeaderVideo('Avengers: Endgame','DCkaS2ygh-Y','/notflix/browse/movie/299534'),
+    new HeaderVideo('The Queens Gambit','CDrieqwSdgI','/notflix/browse/tv/87739'),
+    new HeaderVideo('Interstellar','wJjersym910','/notflix/browse/movie/157336'),
 ];
 /* The core mechanics behind a class */
 function HeaderVideo(name, video, url){
@@ -481,9 +484,11 @@ function HeaderVideo(name, video, url){
     this.video = video;
     this.url = url;
     this.embed = ()=> 
-        `http://www.youtube.com/v/${this.video}?version=3&controls=0&rel=0&fs=0&autoplay=1&disablekb=1&loop=1&modestbranding=1&mute=1&VQ=HD1080`;
+        `http://www.youtube.com/v/${this.video}?version=3&VQ=HD1080`;
 }
 
+
+var dots = document.querySelector('header-dots');
 
 var tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
@@ -491,42 +496,88 @@ var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
 var mainVideo = document.querySelector('#header-wrapper');
-mainVideo.playing = true;
-mainVideo.pause=()=>{
-    mainVideo.player.pauseVideo();
-    mainVideo.playing = false;
-}
-mainVideo.hide=()=>{
-    mainVideo.pause();
-    mainVideo.className = '';
-}
-mainVideo.show=()=>{
-    mainVideo.playing=true;
-    mainVideo.className = 'active';
-    videoCount = ++videoCount % headerCarouselVideos.length;
-    mainVideo.player.loadVideoByUrl(headerCarouselVideos[videoCount].embed());
-}
-var videoCount = 0;
-var playing = false;
+mainVideo = Object.assign(mainVideo,{
+    playing:false,
+    videoCount:-1,
+    pause(){
+        mainVideo.player.pauseVideo();
+        mainVideo.playing = false;
+    },
+    hide(){
+        mainVideo.pause();
+        mainVideo.className = '';
+        navbar.className = 'navbar scrolling';
+    },
+    show(){
+        mainVideo.playing=true;
+        mainVideo.next();
+    },
+    next(){
+        this.videoCount = ++this.videoCount % headerCarouselVideos.length;
+        if(mainVideo.player)mainVideo.player.loadVideoByUrl(headerCarouselVideos[this.videoCount].embed());
+    },
+    prev(){
+        this.videoCount = (--this.videoCount).mod(headerCarouselVideos.length);
+        mainVideo.player.loadVideoByUrl(headerCarouselVideos[this.videoCount].embed());
+    }
 
+});
 function onYouTubeIframeAPIReady() {
+    var dots = document.querySelector('#header-dots');
+    var headerTitle = document.querySelector('.header-title');
     mainVideo.player = new YT.Player('header-video', {
-        events:{
+        width:1920,
+        height:1080,
+        playerVars: {autoplay:1, loop:0, mute:1,disablekb:1,modestbranding:1,origin:window.location.origin,fs:0},
+        events:{        
             onStateChange:state=>{
+                console.log(state);
                 switch(state.data){
                     case 0: // stopped
-                        videoCount = ++videoCount % headerCarouselVideos.length;
-                        mainVideo.player.loadVideoByUrl(headerCarouselVideos[videoCount].embed());
+                        mainVideo.next();
+                        // dots.querySelectorAll('.dot')[mainVideo.videoCount].className = 'dot';
                         break;
                     case 1: //playing
                         if(mainVideo.className=='')mainVideo.className = 'active';
+                        dots.querySelectorAll('.dot').forEach((dot,i)=>dot.className = 'dot'+(i==mainVideo.videoCount?' active':''));
+                        headerTitle.innerHTML = headerCarouselVideos[mainVideo.videoCount].name;
                         break;
                 }
             },
             onReady:()=>{
                 // alert(1);
-                mainVideo.player.loadVideoByUrl(headerCarouselVideos[videoCount].embed());
+                if(state.page == '/notflix/')navbar.className='navbar';
+                mainVideo.player.loadVideoByUrl(headerCarouselVideos[mainVideo.videoCount].embed());
+                headerCarouselVideos.forEach((x,i)=>{
+                    var dot = document.createElement('div');
+                    dot.className = i!=mainVideo.videoCount?'dot':'dot active';
+                    dot.addEventListener('click',()=>{
+                        mainVideo.videoCount = i -1;
+                        mainVideo.next();
+                    });
+                    dots.appendChild(dot);
+                });
+                var headerAudio = document.querySelector('#header-audio');
+                var headerVolSlider = document.querySelector('#header-volume-slider');
+                mainVideo.querySelector('#header-next').addEventListener('click',()=>mainVideo.next());
+                mainVideo.querySelector('#header-prev').addEventListener('click',()=>mainVideo.prev());
+                document.querySelector('#header-more-info').addEventListener('click',()=>navigateToPage(headerCarouselVideos[mainVideo.videoCount].url))
+                document.querySelector('#header-watch-now').addEventListener('click',()=>window.open(`https://www.justwatch.com/us/search?q=${headerCarouselVideos[mainVideo.videoCount].name}`))
+                document.querySelector('#header-mute').addEventListener('click',()=>{
+                    mainVideo.player.unMute();
+                    headerAudio.className = 'volume';
+                });
+                document.querySelector('#header-volume-button').addEventListener('click',()=>{
+                    mainVideo.player.mute();
+                    headerAudio.className = 'muted';
+                });
+                headerVolSlider.addEventListener('input',()=>mainVideo.player.setVolume(headerVolSlider.value));
             }
         }
     });
 }
+
+
+Number.prototype.mod = function(n) {
+    return ((this%n)+n)%n;
+};
