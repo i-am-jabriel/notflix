@@ -141,8 +141,8 @@ function createCardForObject(obj, type){
     <div class='row'>
         <i class="fas fa-play active" tooltip='Watch Now'></i>
         <i class='fas ${addOrRemove}' id='addRemoveListButton'></i>
-        <i class="fas fa-thumbs-up"></i>
-        <i class="fas fa-thumbs-down"></i>
+        <i class="fas fa-thumbs-up" tooltip='Like'></i>
+        <i class="fas fa-thumbs-down" tooltip='Dislike'></i>
         <i class="fas fa-angle-down end" tooltip='More Info'></i>
     </div>
     <div class='row'>
@@ -458,19 +458,22 @@ function populatePage(){
 }
 
 /* Tool Tip */
-
+var tooltipWrapper = document.createElement('span');
+tooltipWrapper.className = 'tooltip-wrapper';
 var tooltipContainer = document.createElement('span');
 tooltipContainer.className = 'tooltip-container';
 var tooltip = document.createElement('span');
 tooltip.className ='tooltip';
 tooltipContainer.appendChild(tooltip);
+tooltipWrapper.appendChild(tooltipContainer);
 function showTooltip(obj,text){
     tooltip.innerText = text;
     tooltip.parent = obj;
-    obj.appendChild(tooltipContainer);
+    obj.appendChild(tooltipWrapper);
 }
 function hideTooltip(){
-    tooltip.parent.removeChild(tooltipContainer);
+    if(!tooltip.parent)return;
+    tooltip.parent.removeChild(tooltipWrapper);
     tooltip.parent = null;
 }
 
@@ -575,16 +578,14 @@ function onYouTubeIframeAPIReady() {
                             dot.className = 'dot'+(i==mainVideo.videoCount?' active':'');
                             // dot.setAttribute('tooltip',headerCarouselVideos[i].name);
                             dot.addEventListener('mouseover',()=>showTooltip(dot,headerCarouselVideos[i].name));
-                            dot.addEventListener('mouseout',()=>hideTooltip(dot));
+                            dot.addEventListener('mouseout',()=>hideTooltip());
                         });
                         headerTitle.innerHTML = headerCarouselVideos[mainVideo.videoCount].name;
                         break;
                 }
             },
             onReady:()=>{
-                // alert(1);
-                if(state.page == '/notflix/')navbar.className='navbar';
-                mainVideo.player.loadVideoByUrl(headerCarouselVideos[mainVideo.videoCount].embed());
+                navbar.className='navbar';
                 headerCarouselVideos.forEach((x,i)=>{
                     var dot = document.createElement('div');
                     dot.className = i!=mainVideo.videoCount?'dot':'dot active';
@@ -598,8 +599,8 @@ function onYouTubeIframeAPIReady() {
                 var headerVolSlider = document.querySelector('#header-volume-slider');
                 mainVideo.querySelector('#header-next').addEventListener('click',()=>mainVideo.next());
                 mainVideo.querySelector('#header-prev').addEventListener('click',()=>mainVideo.prev());
-                document.querySelector('#header-more-info').addEventListener('click',()=>navigateToPage(headerCarouselVideos[mainVideo.videoCount].url))
                 document.querySelector('#header-watch-now').addEventListener('click',()=>window.open(`https://www.justwatch.com/us/search?q=${headerCarouselVideos[mainVideo.videoCount].name}`))
+                document.querySelector('#header-more-info').addEventListener('click',()=>navigateToPage(headerCarouselVideos[mainVideo.videoCount].url))
                 document.querySelector('#header-mute').addEventListener('click',()=>{
                     mainVideo.player.unMute();
                     headerAudio.className = 'volume';
@@ -609,6 +610,8 @@ function onYouTubeIframeAPIReady() {
                     headerAudio.className = 'muted';
                 });
                 headerVolSlider.addEventListener('input',()=>mainVideo.player.setVolume(headerVolSlider.value));
+                if(state.page != '/notflix/')return;
+                mainVideo.player.loadVideoByUrl(headerCarouselVideos[mainVideo.videoCount].embed());
             }
         }
     });

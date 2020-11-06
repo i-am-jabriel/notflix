@@ -53,5 +53,5 @@ Everything is created in javascript
         * [] Show related movies/shows (with infinite scroll)
 
     * [] Ability to hotlink your list so you can share with friends
-    * [] Main home pages have a video playing with the a transparent navbar that changes colors upon scrolling
+    * [✓] Main home pages have a video playing with the a transparent navbar that changes colors upon scrolling
     * [] Collect data on things favorited / movie ratings to suggest better videos / shows

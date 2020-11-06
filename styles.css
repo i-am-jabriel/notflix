@@ -114,7 +114,6 @@ a, ab{cursor: pointer;}
     opacity: 0.6;
 }
 #header-wrapper{
-    display:none;
     user-select: none;
     /* padding-bottom:600px; */
     position: relative;
@@ -161,17 +160,21 @@ a, ab{cursor: pointer;}
     top:20%;
     left:10%;
     opacity:0.7;
-    transition: all 0.8s;
+    /* transition: opacity 0.8s; */
+    /* pointer-events: all; */
 }
 .scrolling .header-lead{
     opacity:0;
-    pointer-events: none;
+    /* pointer-events: none; */
 }
 .header-lead>*{
     margin:3px 0;
 }
 .header-title{
     font-family: 'Roboto' sans-serif;
+}
+.header-title:hover{
+    font-size:120%;
 }
 #header-wrapper button,.header-lead button{
     width:120px;
@@ -502,8 +505,16 @@ button.fa-plus::before,button.fa-minus::before{
 .fa-plus .remove,.fa-minus .add{
     display:none;
 }
+.tooltip-wrapper{
+    position:relative;
+    height:100%;
+    width:100%;
+}
 .tooltip-container{
-    position: relative;
+    position: absolute;
+    top:0;
+    bottom:0;
+    left:50%;
 }
 .card-mini-modal i.fas{
     display:flex;
@@ -514,21 +525,23 @@ button.fa-plus::before,button.fa-minus::before{
     font-family: 'Roboto', sans-serif;
     font-size:0.8em;
     white-space: nowrap;
-    min-width: 80px;
+    width:100%;
+    min-width: 100px;
     background-color:#222;
     color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 0;
-    position: absolute;
+    border-radius: 5px;
+    padding: 8px 4px;
+    position: relative;
     z-index: 1;
-    left:-50px;
     z-index:5;
     animation: tooltip-expand 0.5s ease;
-    height:10px;
-    top:-45px;
+    animation-fill-mode: forwards;
     pointer-events: none;
+    left:-58%;
 }
+/* #header-wrapper .tooltip{
+    left:-62px;
+} */
 .tooltip::after {
     content: " ";
     position: absolute;
@@ -550,8 +563,8 @@ button.fa-plus::before,button.fa-minus::before{
         opacity:0;
     }
     to{
-        height:10px;
-        top:-45px;
+        height:15px;
+        top:-30px;
         opacity:1;
     }
 }
