@@ -10,7 +10,7 @@ var apiImage = 'https://image.tmdb.org/t/p/w500';
 var page = 0;
 var view = 'multi-card';
 
-console.log('v 0.016d');  
+console.log('v 0.2a');  
 
 var lastState;
 document.querySelector('#modal-background').addEventListener('click', ()=>closeModal());
@@ -484,7 +484,7 @@ var mainVideo = document.querySelector('#header-wrapper');
 mainVideo = Object.assign(mainVideo,{
     playing:false,
     videoCount:-1,
-    headerButtons:document.querySelectorAll('.header-buttons'),
+    headerButtons:[...document.querySelectorAll('.header-buttons'),...document.querySelectorAll('.header-button')],
     pause(){
         mainVideo.player.pauseVideo();
         mainVideo.playing = false;
@@ -510,18 +510,14 @@ mainVideo = Object.assign(mainVideo,{
 });
 window.addEventListener('mousemove',()=>{
     if(!mainVideo.playing)return;
+    mainVideo.headerButtons.forEach(button=>{if(button.style.animation!='none')button.style.animation='none'});
+    if(mainVideo.hideTimer) window.clearInterval(mainVideo.hideTimer);
+    mainVideo.hideTimer = window.setTimeout(()=>mainVideo.headerButtons.forEach(button=>{
+        button.style.animation='fadeout 1.5s ease';
+        button.style['animation-play-state']="running";
+        mainVideo.hideTimer = null;
+    }),200);
     // var time = .9+(Math.random()*.1);
-    mainVideo.headerButtons.forEach(button=>{//button.style.animation=`fadeout ${time}s ease`);
-        // button.style.webkitAnimationPlayState="paused";
-        // button.style.webkitAnimationPlayState="running";
-        button.style.animation='none';
-        if(mainVideo.headerButtons.timer) window.clearInterval(mainVideo.headerButtons.timer);
-        mainVideo.headerButtons.timer = window.setTimeout(()=>{
-            button.style.animation='fadeout 1.5s ease';
-            button.style['animation-play-state']="running";
-            mainVideo.headerButtons.timer = null;
-        },200);
-    });
 });
 
 var headerCarouselVideos = [
