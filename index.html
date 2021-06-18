@@ -1,13 +1,63 @@
 <html>
     <head>
         <link rel='stylesheet' href='styles.css' />
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&family=Roboto&family=Quicksand:wght@500&display=swap" rel="stylesheet">
+        <link rel="apple-touch-icon" sizes="180x180" href="/notflix/img/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/notflix/img/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/notflix/img/favicon-16x16.png">
+        <link rel="manifest" href="/notflix/img/site.webmanifest">
     </head>
     <body>
-        <form onsubmit='return false'>
-            <button id='back'>←Back</button>
-            <input id='query' placeholder="Search..."/>
-            <input type='submit' id='submit' />
-        </form>
+        <div id = 'modal'>
+            <div id='modal-background'></div>
+            <div id='modal-window' class='no-scrollbar'></div>
+        </div>
+        <div class = 'navbar scrolling'>
+            <div class='nav-left'>
+                <span class='logo-wrapper'>
+                    <a id='logo' url='/notflix/' aria-label="NoTFLIX">N<r>o</r>TFLIX</a>
+                </span>
+                <a id='home' url='/notflix/'>Home</a>
+                <a id='tv' url='/notflix/tv/'>TV Shows</a>
+                <a id='movies' url='/notflix/movies/'>Movies</a>
+                <a id='list' url='/notflix/list/'>My List</a>
+            </div>
+            <div class='nav-right'>
+                <form onsubmit='return false'>
+                    <ab id='search-button'><i class='fas fa-search'></i></ab>
+                    <input id='search' placeholder="Search..."/>
+                    <button id='close-search-button'>X</button>
+                </form>
+                <ab id='credits'><i class="fas fa-ellipsis-h"></i></ab>
+            </div>
+                <div class='header-buttons'>
+                    <div class='header-lead col'>
+                        <h1 class='header-title'></h1>
+                        <button id='header-watch-now'><i class='fas fa-play'></i> Watch Now</button>
+                        <button id='header-more-info'><i class="fas fa-info-circle"></i>More Info</button>
+                        <div id='header-audio' class='muted'>
+                            <div class='muted'>
+                                <button id='header-mute'><i class="fas fa-volume-mute"></i></button>
+                            </div>
+                            <div class='volume'>
+                                <input id='header-volume-slider' type='range' max='100' min='0' value='50'>
+                                <button id='header-volume-button'><i class="fas fa-volume-up"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>   
+            </div>
+        </div>
+         
+        <div id='header-wrapper'>
+            <div id='header-video'></div>
+            <div class='header-buttons'>
+                <button id='header-next'><i class="fas fa-forward"></i>Next</button>
+                <button id='header-prev'><i class="fas fa-backward"></i>Prev</button>
+                <div id='header-dots'></div>
+            </div> 
+        </div>
         <script src='script.js'></script>
+        <script src="https://kit.fontawesome.com/dc59b22366.js" crossorigin="anonymous"></script>
     </body>
 </html>
